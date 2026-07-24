@@ -1,4 +1,4 @@
-name: Construir y desplegar API Spring Boot
+name: Construir y desplegar Frontend Angular
 
 on:
   push:
@@ -13,15 +13,17 @@ jobs:
       - name: Descargar código
         uses: actions/checkout@v4
 
-      - name: Configurar Java 21
-        uses: actions/setup-java@v4
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v6
         with:
-          java-version: "21"
-          distribution: "temurin"
-          cache: "maven"
+          node-version: "22"
+          cache: "npm"
 
-      - name: Crear JAR Spring Boot
-        run: mvn clean package -DskipTests
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar aplicación Angular
+        run: npm run build
 
       - name: Iniciar sesión en Docker Hub
         uses: docker/login-action@v3
@@ -29,40 +31,33 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Construir imagen Docker
-        run: |
-          docker build \
-            -t ${{ secrets.DOCKER_USERNAME }}/api-catalogo-aws:latest \
-            .
+      - name: Construir y subir imagen Docker
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/app-catalogo-aws:latest
 
-      - name: Subir imagen a Docker Hub
-        run: |
-          docker push \
-            ${{ secrets.DOCKER_USERNAME }}/api-catalogo-aws:latest
-
-      - name: Desplegar en EC2
+      - name: Desplegar frontend en EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-
           script: |
             docker network create catalogo-network || true
 
             docker pull \
-              ${{ secrets.DOCKER_USERNAME }}/api-catalogo-aws:latest
+              ${{ secrets.DOCKER_USERNAME }}/app-catalogo-aws:latest
 
-            docker stop api-catalogo || true
-            docker rm api-catalogo || true
+            docker stop app-catalogo || true
+            docker rm app-catalogo || true
 
             docker run -d \
-              --name api-catalogo \
+              --name app-catalogo \
               --restart unless-stopped \
               --network catalogo-network \
-              -p 8082:8080 \
-              -e SPRING_DATASOURCE_URL=jdbc:postgresql://catalogo-database:5432/catalogo_db \
-              -e SPRING_DATASOURCE_USERNAME=postgres \
-              -e SPRING_DATASOURCE_PASSWORD=root \
-              ${{ secrets.DOCKER_USERNAME }}/api-catalogo-aws:latest
+              -p 80:80 \
+              ${{ secrets.DOCKER_USERNAME }}/app-catalogo-aws:latest
