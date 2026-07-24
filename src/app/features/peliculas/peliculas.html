@@ -1,0 +1,228 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-100 via-white to-indigo-100 py-10">
+
+  <div class="max-w-7xl mx-auto px-6">
+
+    <!-- Título -->
+    <div class="mb-10">
+      <h1 class="text-4xl font-extrabold text-slate-800">
+        Gestión de Películas
+      </h1>
+
+      <p class="text-slate-500 mt-2">
+        Administración del catálogo cinematográfico
+      </p>
+    </div>
+
+    <!-- Formulario -->
+    <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 p-8 mb-10">
+
+      <h2 class="text-2xl font-bold text-slate-700 mb-6">
+        {{ nuevaPelicula.id ? 'Editar Película' : 'Registrar Película' }}
+      </h2>
+
+      <form
+        (ngSubmit)="guardarPelicula()"
+        class="grid grid-cols-1 md:grid-cols-3 gap-6"
+      >
+
+        <input
+          [(ngModel)]="nuevaPelicula.titulo"
+          name="titulo"
+          type="text"
+          placeholder="Título"
+          required
+          class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all"
+        />
+
+        <input
+          [(ngModel)]="nuevaPelicula.genero"
+          name="genero"
+          type="text"
+          placeholder="Género"
+          required
+          class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all"
+        />
+
+        <input
+          [(ngModel)]="nuevaPelicula.director"
+          name="director"
+          type="text"
+          placeholder="Director"
+          required
+          class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all"
+        />
+
+        <input
+          [(ngModel)]="nuevaPelicula.anioEstreno"
+          name="anioEstreno"
+          type="number"
+          placeholder="Año de estreno"
+          min="1888"
+          required
+          class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all"
+        />
+
+        <input
+          [(ngModel)]="nuevaPelicula.duracion"
+          name="duracion"
+          type="number"
+          placeholder="Duración en minutos"
+          min="1"
+          required
+          class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all"
+        />
+
+        <input
+          [(ngModel)]="nuevaPelicula.calificacion"
+          name="calificacion"
+          type="number"
+          placeholder="Calificación"
+          min="0"
+          max="10"
+          step="0.1"
+          required
+          class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all"
+        />
+
+        <button
+          type="submit"
+          class="md:col-span-3 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold shadow-lg hover:scale-[1.02] hover:shadow-indigo-300 transition duration-300"
+        >
+          {{ nuevaPelicula.id ? 'Actualizar Película' : 'Registrar Película' }}
+        </button>
+
+      </form>
+
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
+
+      <div class="bg-gradient-to-r from-indigo-700 to-purple-700 px-6 py-5">
+        <h2 class="text-xl font-bold text-white">
+          Películas Registradas
+        </h2>
+      </div>
+
+      <div class="overflow-x-auto">
+
+        <table class="w-full">
+
+          <thead class="bg-slate-100">
+
+            <tr>
+
+              <th class="px-6 py-4 text-left text-sm font-bold uppercase text-slate-600">
+                Acciones
+              </th>
+
+              <th class="px-6 py-4 text-left text-sm font-bold uppercase text-slate-600">
+                Título
+              </th>
+
+              <th class="px-6 py-4 text-left text-sm font-bold uppercase text-slate-600">
+                Género
+              </th>
+
+              <th class="px-6 py-4 text-left text-sm font-bold uppercase text-slate-600">
+                Director
+              </th>
+
+              <th class="px-6 py-4 text-left text-sm font-bold uppercase text-slate-600">
+                Año
+              </th>
+
+              <th class="px-6 py-4 text-left text-sm font-bold uppercase text-slate-600">
+                Duración
+              </th>
+
+              <th class="px-6 py-4 text-left text-sm font-bold uppercase text-slate-600">
+                Calificación
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            @for (pelicula of listaPeliculas(); track pelicula.id) {
+
+              <tr class="border-b border-slate-100 hover:bg-indigo-50 transition duration-200">
+
+                <td class="px-6 py-4">
+
+                  <div class="flex gap-3">
+
+                    <button
+                      type="button"
+                      (click)="seleccionarParaEditar(pelicula)"
+                      class="h-10 w-10 rounded-full bg-amber-100 hover:bg-amber-200 transition flex items-center justify-center text-lg"
+                    >
+                      ✏️
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="eliminarPelicula(pelicula.id!)"
+                      class="h-10 w-10 rounded-full bg-red-100 hover:bg-red-200 transition flex items-center justify-center text-lg"
+                    >
+                      🗑️
+                    </button>
+
+                  </div>
+
+                </td>
+
+                <td class="px-6 py-4 font-semibold text-slate-700">
+                  {{ pelicula.titulo }}
+                </td>
+
+                <td class="px-6 py-4 text-slate-600">
+                  {{ pelicula.genero }}
+                </td>
+
+                <td class="px-6 py-4 text-slate-600">
+                  {{ pelicula.director }}
+                </td>
+
+                <td class="px-6 py-4 text-slate-600">
+                  {{ pelicula.anioEstreno }}
+                </td>
+
+                <td class="px-6 py-4 text-slate-600">
+                  {{ pelicula.duracion }} minutos
+                </td>
+
+                <td class="px-6 py-4 text-slate-600">
+                  ⭐ {{ pelicula.calificacion }}
+                </td>
+
+              </tr>
+
+            } @empty {
+
+              <tr>
+
+                <td
+                  colspan="7"
+                  class="py-10 text-center text-slate-400 italic"
+                >
+                  🎬 No existen películas registradas
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
